@@ -3,6 +3,7 @@ import "./App.css";
 import AppStyles from "./App.module.css";
 import { Board } from "./components/Board";
 import { BoardType, RowType } from "./types";
+import { solveBoard } from "./logic/logicUtils";
 
 const createInitialBoard2 = () => {
   const board: BoardType = [];
@@ -45,10 +46,19 @@ const createInitialBoard2 = () => {
 
 export const App = () => {
   const [board, setBoard] = useState<BoardType>(createInitialBoard2());
+
+  const onSolveClicked = () => {
+    const solvedBoard = solveBoard(board);
+    setBoard(solvedBoard);
+  };
+
   return (
     <div>
       <div className={AppStyles.title}>פתרון הסודוקו של משפחת רום</div>
       <Board board={board} setBoard={setBoard} />
+      <div>
+        <button onClick={onSolveClicked}>פתור</button>
+      </div>
     </div>
   );
 };
