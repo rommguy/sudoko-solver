@@ -1,0 +1,35 @@
+.board {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 2px;
+    max-width: 450px;
+    margin: 20px auto;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    text-align: center;
+    border: 1px solid black;
+    box-sizing: border-box;
+}
+
+.boxRight {
+    border-right: 3px solid black;
+}
+
+.boxBottom {
+    border-bottom: 3px solid black;
+}
+
+.boardStartTop {
+    border-top: 3px solid black;
+}
+
+.boardStartLeft {
+    border-left: 3px solid black;
+}
+
+
+
