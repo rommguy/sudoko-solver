@@ -1,18 +1,18 @@
-import { BoardType, Cell } from "../types";
+import { BoardType, BoardWithOptions, Cell, CellWithOptions } from "../types";
 import { some } from "lodash";
 
-interface OptionArgs {
+interface SolveArgs {
   rowIndex: number;
   colIndex: number;
-  board: BoardType;
+  board: BoardWithOptions;
   value: number;
 }
 
 const getBoxCells = (
   rowIndex: number,
   columnIndex: number,
-  board: BoardType,
-): Cell[] => {
+  board: BoardWithOptions,
+): CellWithOptions[] => {
   const boxRowStart = Math.floor(rowIndex / 3) * 3;
   const boxColumnStart = Math.floor(columnIndex / 3) * 3;
   return [
@@ -33,7 +33,7 @@ export const canFill = ({
   colIndex,
   board,
   value,
-}: OptionArgs): boolean => {
+}: SolveArgs): boolean => {
   if (board[rowIndex][colIndex].value !== null) {
     return false;
   }
@@ -56,7 +56,7 @@ const fillValueInRow = ({
   colIndex,
   board,
   value,
-}: OptionArgs): BoardType => {
+}: SolveArgs): BoardWithOptions => {
   const rowCells = board[rowIndex];
   return fillValueInValidCell({ rowIndex, colIndex, board, value }, rowCells);
 };
@@ -66,7 +66,7 @@ const fillValueInColumn = ({
   colIndex,
   board,
   value,
-}: OptionArgs): BoardType => {
+}: SolveArgs): BoardWithOptions => {
   const colCells = board.map((row) => row[colIndex]);
   return fillValueInValidCell({ rowIndex, colIndex, board, value }, colCells);
 };
@@ -76,15 +76,15 @@ const fillValueInSquare = ({
   colIndex,
   board,
   value,
-}: OptionArgs): BoardType => {
+}: SolveArgs): BoardWithOptions => {
   const boxCells = getBoxCells(rowIndex, colIndex, board);
   return fillValueInValidCell({ rowIndex, colIndex, board, value }, boxCells);
 };
 
 const fillValueInValidCell = (
-  { board, value }: OptionArgs,
-  boxCells: Cell[],
-) => {
+  { board, value }: SolveArgs,
+  boxCells: CellWithOptions[],
+): BoardWithOptions => {
   const validCells = boxCells.filter((cell: Cell) =>
     canFill({ board, value, rowIndex: cell.rowIndex, colIndex: cell.colIndex }),
   );
@@ -101,7 +101,7 @@ const fillValueInValidCell = (
       return cell;
     }
 
-    return { ...cell, value, type: "solution" } as Cell;
+    return { ...cell, value, type: "solution", options: [] } as CellWithOptions;
   });
   const updatedBoard = board.map((row, index) => {
     if (index !== solutionRow) {
@@ -114,7 +114,7 @@ const fillValueInValidCell = (
   return updatedBoard;
 };
 
-export const solveBoard = (board: BoardType): BoardType => {
+export const solveSingleMove = (board: BoardWithOptions): BoardWithOptions => {
   for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
     for (let colIndex = 0; colIndex < 9; colIndex++) {
       const cell = board[rowIndex][colIndex];
@@ -154,4 +154,27 @@ export const solveBoard = (board: BoardType): BoardType => {
     }
   }
   return board;
+};
+
+const addOptions = (board: BoardType): BoardWithOptions =>
+  board.map((row) =>
+    row.map((cell) => {
+      if (cell.value !== null) {
+        return { ...cell, options: [] };
+      }
+      const options = Array(10).fill(true);
+      return { ...cell, options };
+    }),
+  );
+
+export const solveBoard = (board: BoardType): BoardType => {
+  let boardWithOptions = addOptions(board);
+
+  let updatedBoard = solveSingleMove(boardWithOptions);
+  while (updatedBoard !== boardWithOptions) {
+    boardWithOptions = updatedBoard;
+    updatedBoard = solveSingleMove(boardWithOptions);
+  }
+
+  return updatedBoard;
 };

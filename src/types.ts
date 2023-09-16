@@ -6,6 +6,15 @@ export type Cell = {
   rowIndex: number;
   colIndex: number;
 };
+
 export type RowType = Cell[];
 
-export type BoardType = Array<RowType>;
+export type BoardType = RowType[];
+
+export type CellWithOptions = Cell & {
+  options: boolean[];
+};
+
+export type RowWithOptions = CellWithOptions[];
+
+export type BoardWithOptions = RowWithOptions[];
