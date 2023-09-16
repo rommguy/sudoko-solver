@@ -1,4 +1,10 @@
-import { BoardType, BoardWithOptions, Cell, CellWithOptions } from "../types";
+import {
+  BoardType,
+  BoardWithOptions,
+  Cell,
+  CellWithOptions,
+  RowWithOptions,
+} from "../types";
 import { some } from "lodash";
 
 interface SolveArgs {
@@ -81,6 +87,40 @@ const fillValueInSquare = ({
   return fillValueInValidCell({ rowIndex, colIndex, board, value }, boxCells);
 };
 
+const assignValue = ({
+  rowIndex,
+  colIndex,
+  board,
+  value,
+}: SolveArgs): BoardWithOptions => {
+  const solutionBoxCells = getBoxCells(rowIndex, colIndex, board);
+  return board.map((row, currentRowIndex): RowWithOptions => {
+    return row.map((cell, currentColIndex): CellWithOptions => {
+      if (currentRowIndex === rowIndex && currentColIndex === colIndex) {
+        return {
+          ...cell,
+          value,
+          type: "solution",
+          options: [],
+        } as CellWithOptions;
+      }
+      if (
+        currentColIndex === colIndex ||
+        currentRowIndex === rowIndex ||
+        solutionBoxCells.includes(cell)
+      ) {
+        return {
+          ...cell,
+          options: cell.options.map((option, index) =>
+            index === value ? false : option,
+          ),
+        } as CellWithOptions;
+      }
+      return cell;
+    });
+  });
+};
+
 const fillValueInValidCell = (
   { board, value }: SolveArgs,
   boxCells: CellWithOptions[],
@@ -96,25 +136,17 @@ const fillValueInValidCell = (
   const solutionRow = validCells[0].rowIndex;
   const solutionCol = validCells[0].colIndex;
 
-  const updatedRow = board[solutionRow].map((cell, index) => {
-    if (index !== solutionCol) {
-      return cell;
-    }
-
-    return { ...cell, value, type: "solution", options: [] } as CellWithOptions;
+  return assignValue({
+    board,
+    value,
+    colIndex: solutionCol,
+    rowIndex: solutionRow,
   });
-  const updatedBoard = board.map((row, index) => {
-    if (index !== solutionRow) {
-      return row;
-    }
-
-    return updatedRow;
-  });
-
-  return updatedBoard;
 };
 
-export const solveSingleMove = (board: BoardWithOptions): BoardWithOptions => {
+export const solveSingleMoveSimple = (
+  board: BoardWithOptions,
+): BoardWithOptions => {
   for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
     for (let colIndex = 0; colIndex < 9; colIndex++) {
       const cell = board[rowIndex][colIndex];
@@ -170,10 +202,10 @@ const addOptions = (board: BoardType): BoardWithOptions =>
 export const solveBoard = (board: BoardType): BoardType => {
   let boardWithOptions = addOptions(board);
 
-  let updatedBoard = solveSingleMove(boardWithOptions);
+  let updatedBoard = solveSingleMoveSimple(boardWithOptions);
   while (updatedBoard !== boardWithOptions) {
     boardWithOptions = updatedBoard;
-    updatedBoard = solveSingleMove(boardWithOptions);
+    updatedBoard = solveSingleMoveSimple(boardWithOptions);
   }
 
   return updatedBoard;
