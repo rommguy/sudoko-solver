@@ -1,20 +1,21 @@
 import { BoardType, Cell } from "../types";
 import { some } from "lodash";
 
-export const canFill = ({
-  rowIndex,
-  colIndex,
-  board,
-  value,
-}: {
+interface OptionArgs {
   rowIndex: number;
   colIndex: number;
   board: BoardType;
   value: number;
-}): boolean => {
+}
+
+const getBoxCells = (
+  rowIndex: number,
+  columnIndex: number,
+  board: BoardType,
+): Cell[] => {
   const boxRowStart = Math.floor(rowIndex / 3) * 3;
-  const boxColumnStart = Math.floor(colIndex / 3) * 3;
-  const boxCells = [
+  const boxColumnStart = Math.floor(columnIndex / 3) * 3;
+  return [
     board[boxRowStart][boxColumnStart],
     board[boxRowStart][boxColumnStart + 1],
     board[boxRowStart][boxColumnStart + 2],
@@ -25,6 +26,18 @@ export const canFill = ({
     board[boxRowStart + 2][boxColumnStart + 1],
     board[boxRowStart + 2][boxColumnStart + 2],
   ];
+};
+
+export const canFill = ({
+  rowIndex,
+  colIndex,
+  board,
+  value,
+}: OptionArgs): boolean => {
+  if (board[rowIndex][colIndex].value !== null) {
+    return false;
+  }
+  const boxCells = getBoxCells(rowIndex, colIndex, board);
   const rowCells = board[rowIndex];
   const columnCells = board.map((row) => row[colIndex]);
 
@@ -38,6 +51,42 @@ export const canFill = ({
   return !inBox && !inRow && !inColumn;
 };
 
+const fillValueInSquare = ({
+  rowIndex,
+  colIndex,
+  board,
+  value,
+}: OptionArgs): BoardType => {
+  const boxCells = getBoxCells(rowIndex, colIndex, board);
+  const validCells = boxCells.filter((cell: Cell) =>
+    canFill({ board, value, rowIndex: cell.rowIndex, colIndex: cell.colIndex }),
+  );
+
+  if (validCells.length === 0 || validCells.length > 1) {
+    return board;
+  }
+
+  const solutionRow = validCells[0].rowIndex;
+  const solutionCol = validCells[0].colIndex;
+
+  const updatedRow = board[solutionRow].map((cell, index) => {
+    if (index !== solutionCol) {
+      return cell;
+    }
+
+    return { ...cell, value, type: "solution" } as Cell;
+  });
+  const updatedBoard = board.map((row, index) => {
+    if (index !== solutionRow) {
+      return row;
+    }
+
+    return updatedRow;
+  });
+
+  return updatedBoard;
+};
+
 export const solveBoard = (board: BoardType): BoardType => {
   for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
     for (let colIndex = 0; colIndex < 9; colIndex++) {
@@ -47,26 +96,15 @@ export const solveBoard = (board: BoardType): BoardType => {
       }
 
       for (let value = 1; value <= 9; value++) {
-        if (!canFill({ rowIndex, colIndex, board, value })) {
-          continue;
+        const updatedBoard = fillValueInSquare({
+          rowIndex,
+          colIndex,
+          board,
+          value,
+        });
+        if (updatedBoard !== board) {
+          return updatedBoard;
         }
-
-        const updatedRow = board[rowIndex].map((cell, index) => {
-          if (index !== colIndex) {
-            return cell;
-          }
-
-          return { value, type: "solution" } as Cell;
-        });
-        const updatedBoard = board.map((row, index) => {
-          if (index !== rowIndex) {
-            return row;
-          }
-
-          return updatedRow;
-        });
-
-        return updatedBoard;
       }
     }
   }

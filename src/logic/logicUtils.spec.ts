@@ -82,5 +82,19 @@ describe("logicUtils", () => {
       expect(resultFalse).toBe(false);
       expect(resultTrue).toBe(true);
     });
+
+    it("should return false if the cell is already filled", async () => {
+      const board = createInitialBoard();
+      board[1][0].value = 6;
+      const resultFalse = canFill({
+        rowIndex: 1,
+        colIndex: 0,
+        board,
+        value: 5,
+      });
+      expect(resultFalse).toEqual(false);
+    });
   });
+
+  describe("fillValue", () => {});
 });

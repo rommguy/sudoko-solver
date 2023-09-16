@@ -33,7 +33,12 @@ export const Board = ({ board, setBoard }: BoardProps) => {
       (isNumber(numberValue) && numberValue >= 1 && numberValue <= 9)
     ) {
       const newBoard = [...board];
-      newBoard[rowIndex][columnIndex] = { value: numberValue, type: "user" };
+      newBoard[rowIndex][columnIndex] = {
+        value: numberValue,
+        type: "user",
+        rowIndex: rowIndex,
+        colIndex: columnIndex,
+      };
       setBoard(newBoard);
     }
   };
