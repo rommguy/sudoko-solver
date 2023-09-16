@@ -2,15 +2,21 @@ import { useState } from "react";
 import "./App.css";
 import AppStyles from "./App.module.css";
 import { Board } from "./components/Board";
-import { BoardType, RowType } from "./types";
-import { solveBoard } from "./logic/logicUtils";
+import { BoardWithOptions, RowWithOptions } from "./types";
+import { solveBoard } from "./logic/solution";
 
 const createInitialBoard2 = () => {
-  const board: BoardType = [];
+  const board: BoardWithOptions = [];
   for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
-    const row: RowType = [];
+    const row: RowWithOptions = [];
     for (let colIndex = 0; colIndex < 9; colIndex++) {
-      row.push({ value: null, type: "initial", rowIndex, colIndex });
+      row.push({
+        value: null,
+        type: "initial",
+        rowIndex,
+        colIndex,
+        options: Array(10).fill(true),
+      });
     }
     board.push(row);
   }
@@ -46,7 +52,7 @@ const createInitialBoard2 = () => {
 };
 
 export const App = () => {
-  const [board, setBoard] = useState<BoardType>(createInitialBoard2());
+  const [board, setBoard] = useState<BoardWithOptions>(createInitialBoard2());
 
   const onSolveClicked = () => {
     const solvedBoard = solveBoard(board);

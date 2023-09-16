@@ -5,7 +5,8 @@ import {
   CellWithOptions,
   RowWithOptions,
 } from "../types";
-import { some } from "lodash";
+import { some, first, last } from "lodash";
+import { logInfo } from "../utils/logUtils";
 
 interface SolveArgs {
   rowIndex: number;
@@ -14,11 +15,11 @@ interface SolveArgs {
   value: number;
 }
 
-const getBoxCells = (
+export const getBoxCells = <T extends BoardType>(
   rowIndex: number,
   columnIndex: number,
-  board: BoardWithOptions,
-): CellWithOptions[] => {
+  board: T,
+): T[number] => {
   const boxRowStart = Math.floor(rowIndex / 3) * 3;
   const boxColumnStart = Math.floor(columnIndex / 3) * 3;
   return [
@@ -144,9 +145,7 @@ const fillValueInValidCell = (
   });
 };
 
-export const solveSingleMoveSimple = (
-  board: BoardWithOptions,
-): BoardWithOptions => {
+export const solveSingleMove = (board: BoardWithOptions): BoardWithOptions => {
   for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
     for (let colIndex = 0; colIndex < 9; colIndex++) {
       const cell = board[rowIndex][colIndex];
@@ -183,29 +182,135 @@ export const solveSingleMoveSimple = (
           return updatedBoardCol;
         }
       }
+
+      const allowedOptions = cell.options.filter((option) => option);
+      if (allowedOptions.length === 1) {
+        const value = cell.options.indexOf(true);
+        return assignValue({
+          board,
+          value,
+          colIndex,
+          rowIndex,
+        });
+      }
     }
   }
+
   return board;
 };
 
-const addOptions = (board: BoardType): BoardWithOptions =>
-  board.map((row) =>
-    row.map((cell) => {
-      if (cell.value !== null) {
-        return { ...cell, options: [] };
+const removeOption = (
+  board: BoardWithOptions,
+  cells: CellWithOptions[],
+  optionToRemove: number,
+): BoardWithOptions => {
+  if (!cells.length) {
+    return board;
+  }
+  return board.map((row) => {
+    return row.map((cell) => {
+      if (cells.includes(cell)) {
+        return {
+          ...cell,
+          options: cell.options.map((option, index) =>
+            index === optionToRemove ? false : option,
+          ),
+        };
       }
-      const options = Array(10).fill(true);
-      return { ...cell, options };
-    }),
-  );
+      return cell;
+    });
+  });
+};
 
-export const solveBoard = (board: BoardType): BoardType => {
-  let boardWithOptions = addOptions(board);
+export const applyOptions = (board: BoardWithOptions): BoardWithOptions => {
+  logInfo("Applying options");
+  let updatedBoard = board;
+  for (let rowIndex = 0; rowIndex < 9; rowIndex++) {
+    const row = board[rowIndex];
+    for (let value = 1; value <= 9; value++) {
+      const valueOptions = row.filter((cell) => cell.options[value]);
+      // if all value options are in the same box, remove the value from the rest of the box
+      if (
+        valueOptions.length > 1 &&
+        valueOptions.length <= 3 &&
+        Math.floor(first(valueOptions)!.colIndex / 3) ===
+          Math.floor(last(valueOptions)!.colIndex / 3)
+      ) {
+        logInfo(
+          `Found ${valueOptions.length} options for ${value} in row ${rowIndex} at the same box`,
+        );
+        const boxCellsInOtherRows = getBoxCells(
+          valueOptions[0].rowIndex,
+          valueOptions[0].colIndex,
+          board,
+        ).filter((cell) => cell.rowIndex !== rowIndex);
+        updatedBoard = removeOption(updatedBoard, boxCellsInOtherRows, value);
+      }
+    }
+  }
 
-  let updatedBoard = solveSingleMoveSimple(boardWithOptions);
-  while (updatedBoard !== boardWithOptions) {
-    boardWithOptions = updatedBoard;
-    updatedBoard = solveSingleMoveSimple(boardWithOptions);
+  for (let colIndex = 0; colIndex < 9; colIndex++) {
+    const column = board.map((row) => row[colIndex]);
+    for (let value = 1; value <= 9; value++) {
+      const valueOptions = column.filter((cell) => cell.options[value]);
+
+      if (
+        valueOptions.length > 1 &&
+        valueOptions.length <= 3 &&
+        Math.floor(first(valueOptions)!.rowIndex / 3) ===
+          Math.floor(last(valueOptions)!.rowIndex / 3)
+      ) {
+        logInfo(
+          `Found ${valueOptions.length} options for ${value} in column ${colIndex} at the same box`,
+        );
+        const boxCellsInOtherColumns = getBoxCells(
+          valueOptions[0].rowIndex,
+          valueOptions[0].colIndex,
+          board,
+        ).filter((cell) => cell.colIndex !== colIndex);
+        updatedBoard = removeOption(
+          updatedBoard,
+          boxCellsInOtherColumns,
+          value,
+        );
+      }
+    }
+  }
+
+  // go over all boxes
+  for (let rowIndex = 0; rowIndex < 9; rowIndex += 3) {
+    for (let columnIndex = 0; columnIndex < 9; columnIndex += 3) {
+      const boxCells = getBoxCells(rowIndex, columnIndex, board);
+      for (let value = 1; value <= 9; value++) {
+        const valueOptions = boxCells.filter((cell) => cell.options[value]);
+        if (valueOptions.length > 1 && valueOptions.length <= 3) {
+          if (first(valueOptions)!.rowIndex === last(valueOptions)!.rowIndex) {
+            logInfo(
+              `found ${valueOptions.length} options for ${value} in the same row in box ${rowIndex}-${columnIndex}`,
+            );
+            const rowCellsInOtherBoxes = board[
+              first(valueOptions)!.rowIndex
+            ].filter((cell) => !boxCells.includes(cell));
+            updatedBoard = removeOption(
+              updatedBoard,
+              rowCellsInOtherBoxes,
+              value,
+            );
+          } else if (
+            first(valueOptions)!.colIndex === last(valueOptions)!.colIndex
+          ) {
+            const colCellsInOtherBoxes = board
+              .map((row) => row[first(valueOptions)!.colIndex])
+              .filter((cell) => !boxCells.includes(cell));
+            updatedBoard = removeOption(
+              updatedBoard,
+              colCellsInOtherBoxes,
+              value,
+            );
+          }
+        }
+      }
+    }
   }
 
   return updatedBoard;

@@ -39,5 +39,10 @@
     color: #e028d6;
 }
 
+.optionsContainer {
+    min-height: 50px;
+}
 
-
+.option {
+    margin: 10px;
+}

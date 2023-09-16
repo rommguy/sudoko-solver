@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { isNumber } from "lodash";
 import BoardStyles from "./Board.module.css";
-import { BoardType, CellType, RowType } from "../types";
+import { BoardWithOptions, CellType, RowType } from "../types";
 
 interface BoardProps {
-  board: BoardType;
-  setBoard: (board: BoardType) => void;
+  board: BoardWithOptions;
+  setBoard: (board: BoardWithOptions) => void;
 }
 
 const getCellClass = (
@@ -22,6 +23,7 @@ const getCellClass = (
   }`;
 };
 export const Board = ({ board, setBoard }: BoardProps) => {
+  const [currentOptions, setCurrentOptions] = useState<boolean[]>([]);
   const handleChange = (
     rowIndex: number,
     columnIndex: number,
@@ -38,27 +40,45 @@ export const Board = ({ board, setBoard }: BoardProps) => {
         type: "user",
         rowIndex: rowIndex,
         colIndex: columnIndex,
+        options: [],
       };
       setBoard(newBoard);
     }
   };
 
   return (
-    <div className={BoardStyles.board}>
-      {board.map((row: RowType, rowIndex: number) =>
-        row.map((cell, columnIndex: number) => (
-          <input
-            key={`${rowIndex}-${columnIndex}`}
-            type="text"
-            className={getCellClass(rowIndex, columnIndex, cell.type)}
-            value={board[rowIndex][columnIndex].value || ""}
-            onChange={(e) =>
-              handleChange(rowIndex, columnIndex, e.target.value)
-            }
-            maxLength={1}
-          />
-        )),
-      )}
+    <div>
+      <div className={BoardStyles.board}>
+        {board.map((row: RowType, rowIndex: number) =>
+          row.map((cell, columnIndex: number) => (
+            <input
+              key={`${rowIndex}-${columnIndex}`}
+              type="text"
+              className={getCellClass(rowIndex, columnIndex, cell.type)}
+              value={board[rowIndex][columnIndex].value || ""}
+              onChange={(e) =>
+                handleChange(rowIndex, columnIndex, e.target.value)
+              }
+              maxLength={1}
+              onMouseEnter={() => {
+                setCurrentOptions(board[rowIndex][columnIndex].options);
+              }}
+              onMouseLeave={() => {
+                setCurrentOptions([]);
+              }}
+            />
+          )),
+        )}
+      </div>
+      <div className={BoardStyles.optionsContainer}>
+        {currentOptions.map((value, index) =>
+          value && index > 0 ? (
+            <span className={BoardStyles.option} key={index}>
+              {index}
+            </span>
+          ) : null,
+        )}
+      </div>
     </div>
   );
 };
