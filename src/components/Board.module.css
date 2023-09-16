@@ -31,5 +31,13 @@
     border-left: 3px solid black;
 }
 
+.userCell {
+    color: #535bf2;
+}
+
+.solutionCell {
+    color: green;
+}
+
 
 

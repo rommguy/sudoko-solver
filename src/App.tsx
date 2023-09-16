@@ -1,64 +1,56 @@
 import { useState } from "react";
 import "./App.css";
 import { Board } from "./components/Board";
-import { BoardType } from "./types";
+import { BoardType, RowType } from "./types";
 
-const createInitialBoard = () => {
-  // creates a 9x9 board with all cells null
-  const board = [];
-  for (let i = 0; i < 9; i++) {
-    const row = [];
-    for (let j = 0; j < 9; j++) {
-      row.push(null);
-    }
-    board.push(row);
-  }
-  return board;
-};
+// const createInitialBoard = () => {
+//   // creates a 9x9 board with all cells null
+//   const board = [];
+//   for (let i = 0; i < 9; i++) {
+//     const row = [];
+//     for (let j = 0; j < 9; j++) {
+//       row.push(null);
+//     }
+//     board.push(row);
+//   }
+//   return board;
+// };
 
 const createInitialBoard2 = () => {
   const board: BoardType = [];
   for (let i = 0; i < 9; i++) {
-    const row = [];
+    const row: RowType = [];
     for (let j = 0; j < 9; j++) {
-      row.push(null);
+      row.push({ value: null, type: "initial" });
     }
     board.push(row);
   }
 
-  board[0][1] = 2;
-  board[0][7] = 1;
-
-  board[1][2] = 3;
-  board[1][3] = 1;
-  board[1][5] = 2;
-  board[1][6] = 4;
-
-  board[2][2] = 5;
-  board[2][4] = 9;
-
-  board[3][0] = 5;
-  board[3][7] = 8;
-  board[3][8] = 3;
-
-  board[4][3] = 2;
-  board[4][4] = 7;
-  board[4][5] = 6;
-
-  board[5][0] = 9;
-  board[5][1] = 4;
-  board[5][8] = 7;
-
-  board[6][4] = 6;
-  board[6][6] = 7;
-
-  board[7][2] = 1;
-  board[7][3] = 7;
-  board[7][5] = 4;
-  board[7][6] = 2;
-
-  board[8][1] = 9;
-  board[8][7] = 3;
+  board[0][1] = { value: 2, type: "initial" };
+  board[0][7] = { value: 1, type: "initial" };
+  board[1][2] = { value: 3, type: "initial" };
+  board[1][3] = { value: 1, type: "initial" };
+  board[1][5] = { value: 2, type: "initial" };
+  board[1][6] = { value: 4, type: "initial" };
+  board[2][2] = { value: 5, type: "initial" };
+  board[2][4] = { value: 9, type: "initial" };
+  board[3][0] = { value: 5, type: "initial" };
+  board[3][7] = { value: 8, type: "initial" };
+  board[3][8] = { value: 3, type: "initial" };
+  board[4][3] = { value: 2, type: "initial" };
+  board[4][4] = { value: 7, type: "initial" };
+  board[4][5] = { value: 6, type: "initial" };
+  board[5][0] = { value: 9, type: "initial" };
+  board[5][1] = { value: 4, type: "initial" };
+  board[5][8] = { value: 7, type: "initial" };
+  board[6][4] = { value: 6, type: "initial" };
+  board[6][6] = { value: 7, type: "initial" };
+  board[7][2] = { value: 1, type: "initial" };
+  board[7][3] = { value: 7, type: "initial" };
+  board[7][5] = { value: 4, type: "initial" };
+  board[7][6] = { value: 2, type: "initial" };
+  board[8][1] = { value: 9, type: "initial" };
+  board[8][7] = { value: 3, type: "initial" };
 
   return board;
 };
