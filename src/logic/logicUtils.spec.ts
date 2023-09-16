@@ -7,7 +7,7 @@ const createInitialBoard = (): BoardType => {
   for (let i = 0; i < 9; i++) {
     const row: RowType = [];
     for (let j = 0; j < 9; j++) {
-      row.push({ value: null, type: "initial" });
+      row.push({ value: null, type: "initial", rowIndex: i, colIndex: j });
     }
     board.push(row);
   }

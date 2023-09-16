@@ -51,6 +51,26 @@ export const canFill = ({
   return !inBox && !inRow && !inColumn;
 };
 
+const fillValueInRow = ({
+  rowIndex,
+  colIndex,
+  board,
+  value,
+}: OptionArgs): BoardType => {
+  const rowCells = board[rowIndex];
+  return fillValueInValidCell({ rowIndex, colIndex, board, value }, rowCells);
+};
+
+const fillValueInColumn = ({
+  rowIndex,
+  colIndex,
+  board,
+  value,
+}: OptionArgs): BoardType => {
+  const colCells = board.map((row) => row[colIndex]);
+  return fillValueInValidCell({ rowIndex, colIndex, board, value }, colCells);
+};
+
 const fillValueInSquare = ({
   rowIndex,
   colIndex,
@@ -58,6 +78,13 @@ const fillValueInSquare = ({
   value,
 }: OptionArgs): BoardType => {
   const boxCells = getBoxCells(rowIndex, colIndex, board);
+  return fillValueInValidCell({ rowIndex, colIndex, board, value }, boxCells);
+};
+
+const fillValueInValidCell = (
+  { board, value }: OptionArgs,
+  boxCells: Cell[],
+) => {
   const validCells = boxCells.filter((cell: Cell) =>
     canFill({ board, value, rowIndex: cell.rowIndex, colIndex: cell.colIndex }),
   );
@@ -104,6 +131,24 @@ export const solveBoard = (board: BoardType): BoardType => {
         });
         if (updatedBoard !== board) {
           return updatedBoard;
+        }
+        const updatedBoardRow = fillValueInRow({
+          rowIndex,
+          colIndex,
+          board,
+          value,
+        });
+        if (updatedBoardRow !== board) {
+          return updatedBoardRow;
+        }
+        const updatedBoardCol = fillValueInColumn({
+          rowIndex,
+          colIndex,
+          board,
+          value,
+        });
+        if (updatedBoardCol !== board) {
+          return updatedBoardCol;
         }
       }
     }
