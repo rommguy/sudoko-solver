@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { isNumber } from "lodash";
 import BoardStyles from "./Board.module.css";
 import { BoardWithOptions, CellType, RowType } from "../types";
 
 interface BoardProps {
   board: BoardWithOptions;
-  setBoard: (board: BoardWithOptions) => void;
+  setValue: (value: number, rowIndex: number, colIndex: number) => void;
 }
 
 const getCellClass = (
@@ -22,7 +21,8 @@ const getCellClass = (
     cellType === "solution" ? BoardStyles.solutionCell : ""
   }`;
 };
-export const Board = ({ board, setBoard }: BoardProps) => {
+
+export const Board = ({ board, setValue }: BoardProps) => {
   const [currentOptions, setCurrentOptions] = useState<boolean[]>([]);
   const handleChange = (
     rowIndex: number,
@@ -30,19 +30,8 @@ export const Board = ({ board, setBoard }: BoardProps) => {
     value: string,
   ) => {
     const numberValue = Number(value);
-    if (
-      value === "" ||
-      (isNumber(numberValue) && numberValue >= 1 && numberValue <= 9)
-    ) {
-      const newBoard = [...board];
-      newBoard[rowIndex][columnIndex] = {
-        value: numberValue,
-        type: "user",
-        rowIndex: rowIndex,
-        colIndex: columnIndex,
-        options: [],
-      };
-      setBoard(newBoard);
+    if (numberValue) {
+      setValue(numberValue, rowIndex, columnIndex);
     }
   };
 

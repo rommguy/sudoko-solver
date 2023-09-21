@@ -88,7 +88,7 @@ const fillValueInSquare = ({
   return fillValueInValidCell({ rowIndex, colIndex, board, value }, boxCells);
 };
 
-const assignValue = ({
+export const assignValue = ({
   rowIndex,
   colIndex,
   board,
