@@ -242,7 +242,7 @@ export const applyOptions = (board: BoardWithOptions): BoardWithOptions => {
         const boxCellsInOtherRows = getBoxCells(
           valueOptions[0].rowIndex,
           valueOptions[0].colIndex,
-          board,
+          updatedBoard,
         ).filter((cell) => cell.rowIndex !== rowIndex);
         updatedBoard = removeOption(updatedBoard, boxCellsInOtherRows, value);
       }
