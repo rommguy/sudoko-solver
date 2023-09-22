@@ -1,9 +1,4 @@
-import { parseBoardInput } from "./parseUtils";
-
-const createOptions = (options: number[]) =>
-  Array(10)
-    .fill(true)
-    .map((_, index) => (options.includes(index) ? true : false));
+import { parseBoardInput, createOptions } from "./parseUtils";
 
 describe("board parser", () => {
   it("should parse board", async () => {

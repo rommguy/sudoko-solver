@@ -1,6 +1,11 @@
 import { isNumber, isNaN, trim } from "lodash";
 import { BoardWithOptions, CellWithOptions } from "../types";
-import { addOptions } from "../logic/logicUtils";
+import { addOptions } from "../logic/solutionUtils.ts";
+
+export const createOptions = (options: number[]) =>
+  Array(10)
+    .fill(true)
+    .map((_, index) => (options.includes(index) ? true : false));
 
 const emptyCell: CellWithOptions = {
   value: null,

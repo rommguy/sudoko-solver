@@ -4,7 +4,7 @@ import AppStyles from "./App.module.css";
 import { Board } from "./components/Board";
 import { BoardWithOptions } from "./types";
 import { solveBoard } from "./logic/solution";
-import { assignValue } from "./logic/logicUtils";
+import { assignValue } from "./logic/solutionUtils.ts";
 import { createDifficultBoard } from "./examples/exampleBoards";
 
 export const App = () => {

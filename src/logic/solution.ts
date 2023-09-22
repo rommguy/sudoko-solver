@@ -1,5 +1,5 @@
 import { BoardType, BoardWithOptions } from "../types";
-import { addOptions, applyOptions, solveSingleMove } from "./logicUtils";
+import { addOptions, applyOptions, solveSingleMove } from "./solutionUtils.ts";
 
 export const solveBoard = (board: BoardType): BoardWithOptions => {
   const boardWithOptions = addOptions(board);
